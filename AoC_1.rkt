@@ -24,7 +24,7 @@
   (let ((file (open-input-file filename)))
     (read-list-iter file)))
 
-;Count the number of items in a list which are larger than the pervious item
+;Count the number of items in a list which are larger than the previous item
 (define (count-increases initial depths)
   (cond ((null? depths) 0)
         ((< initial (car depths))

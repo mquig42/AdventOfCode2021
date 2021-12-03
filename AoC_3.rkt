@@ -27,13 +27,6 @@
   (if (> from to) nil
       (cons from (pos-seq (+ from 1) to))))
 
-;Counts the number of items in a list
-(define (count l)
-  (define (iter acc l)
-    (if (null? l) acc
-        (iter (+ acc 1) (cdr l))))
-  (iter 0 l))
-
 ;Extracts a single digit from a binary number n
 ;pos is zero-based, right to left
 (define (bit-at n pos)
@@ -86,7 +79,7 @@
 
 (define (ls-rating criteria l pos)
   (let ((values (filter l (criteria l pos) pos)))
-    (cond ((= (count values) 1) (car values))
+    (cond ((null? (cdr values)) (car values))
           (else (ls-rating criteria values (- pos 1))))))
 
 (define (oxygen l width)

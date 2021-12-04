@@ -79,24 +79,20 @@
 (define (min-val lis)
   (list-val-helper 99999 < lis))
 
+;Helper function for finding position of lowest or highest item in a list
+(define (list-pos-helper pos pos-r initial comparison lis)
+  (cond ((null? lis) pos-r)
+        ((comparison (car lis) initial)
+         (list-pos-helper (+ pos 1) pos (car lis) comparison (cdr lis)))
+        (else (list-pos-helper (+ pos 1) pos-r initial comparison (cdr lis)))))
+
 ;Returns the position of the lowest item in a list
 (define (pos-of-lowest lis)
-  (define (iter pos pos-lowest lowest lis)
-    (cond ((null? lis) pos-lowest)
-          ((< (car lis) lowest)
-           (iter (+ pos 1) pos (car lis) (cdr lis)))
-          (else (iter (+ pos 1) pos-lowest lowest (cdr lis)))))
-  (iter 0 0 99999 lis))
+  (list-pos-helper 0 0 99999 < lis))
 
 ;Returns the position of the highest item in a list
-;This is a near-exact diplicate of pos-of-lowest, and should be combined
 (define (pos-of-highest lis)
-  (define (iter pos pos-highest highest lis)
-    (cond ((null? lis) pos-highest)
-          ((> (car lis) highest)
-           (iter (+ pos 1) pos (car lis) (cdr lis)))
-          (else (iter (+ pos 1) pos-highest highest (cdr lis)))))
-  (iter 0 0 0 lis))
+  (list-pos-helper 0 0 0 > lis))
 
 ;Returns nth row of card
 (define (row n card)
@@ -106,25 +102,25 @@
 (define (col n card)
   (map (λ (x) (item-at n (row x card))) list5))
 
-;Returns a list of all rows and columns of a card
-(define (enumerate card)
-  (append card (map (λ (x) (col x card)) list5)))
-
-;Returns the draw-position of the last number to be drawn in this list
-(define (time-to-win lis)
-  (max-val (map draw-pos lis)))
-
 ;Returns the draw-position of the last number to be drawn in this card
-(define (time-to-win-card card)
-  (min-val (map time-to-win (enumerate card))))
+(define (time-to-win card)
+  ;Calculates time to win for a single row or column
+  (define (time-to-win-row lis)
+    (max-val (map draw-pos lis)))
+  
+  ;Returns all rows and columns in a card
+  (define (enumerate card)
+    (append card (map (λ (x) (col x card)) list5)))
+  
+  (min-val (map time-to-win-row (enumerate card))))
 
 ;Returns the index of the winning card
 (define (pos-winning-card)
-  (pos-of-lowest (map time-to-win-card cards)))
+  (pos-of-lowest (map time-to-win cards)))
 
 ;Returns the index of the losing card (last card to win)
 (define (pos-losing-card)
-  (pos-of-highest (map time-to-win-card cards)))
+  (pos-of-highest (map time-to-win cards)))
 
 ;Finds the final score of a card at the time that it wins,
 ;assuming no other cards win first
@@ -134,7 +130,7 @@
           ((< num-draws (draw-pos (car card)))
            (sum-unmarked (+ acc (car card)) num-draws (cdr card)))
           (else (sum-unmarked acc num-draws (cdr card)))))
-  (let ((num-draws (time-to-win-card card)))
+  (let ((num-draws (time-to-win card)))
     (* (sum-unmarked 0 num-draws (flatten card)) (nth-draw num-draws))))
 
 ;;Entry Point ==================================================================
@@ -146,8 +142,7 @@
 
 ;First line is the draw sequence. Read it into a list.
 (define draw-sequence
-  (map (λ (x) (string->number x))
-       (string-split (string-trim (read-line input-file)) ",")))
+  (map string->number (string-split (string-trim (read-line input-file)) ",")))
 
 ;Now read all cards
 (define cards (read-n-cards number-of-cards input-file))
@@ -160,7 +155,7 @@
 (display "Winning Card: ")
 (pos-winning-card)
 (display "       Draws: ")
-(time-to-win-card (item-at (pos-winning-card) cards))
+(time-to-win (item-at (pos-winning-card) cards))
 (display "       Score: ")
 (score (item-at (pos-winning-card) cards))
 
@@ -170,6 +165,6 @@
 (display " Losing Card: ")
 (pos-losing-card)
 (display "       Draws: ")
-(time-to-win-card (item-at (pos-losing-card) cards))
+(time-to-win (item-at (pos-losing-card) cards))
 (display "       Score: ")
 (score (item-at (pos-losing-card) cards))

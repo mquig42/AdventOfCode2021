@@ -49,7 +49,7 @@
 (define (y-left segment)
   (if (> (x2 segment) (x1 segment)) (y1 segment) (y2 segment)))
 
-;Getters and setters for points
+;;Getters and setters for points
 (define (x-coord point)
   (car point))
 (define (y-coord point)
@@ -108,16 +108,30 @@
           (else (iter acc (cdr lst)))))
   (iter 0 lst))
 
+;New implememtation using hash sets.
+;This is (as expected) much faster. It takes 3 seconds to solve part 2,
+;while count-duplicates takes over 13 minutes
+(define (count-duplicates-fast lst)
+  (define (iter dups points lst)
+    (cond ((null? lst) (set-count dups)) ;Reached end of lst, return count
+          ((set-member? dups (car lst))  ;This duplicate has already been found
+           (iter dups points (cdr lst)))
+          ((set-member? points (car lst));Found a duplicate, add it to dups
+           (iter (set-add dups (car lst)) points (cdr lst)))
+          (else                          ;Not a duplicate, add it to points
+           (iter dups (set-add points (car lst)) (cdr lst)))))
+  (iter (set) (set) lst))
+
 ;Solve part 1
 (define (solve1 input)
-  (count-duplicates
+  (count-duplicates-fast
    (flatten-one
     (map enumerate-points
          (remove-diagonals input)))))
 
 ;Solve part 2. Same as part 1, but don't remove diagonals
 (define (solve2 input)
-  (count-duplicates (flatten-one (map enumerate-points input))))
+  (count-duplicates-fast (flatten-one (map enumerate-points input))))
 
 ;;Entry Point ==================================================================
 (define filename "Input5.txt")

@@ -135,7 +135,7 @@
 
 ;;Entry Point ==================================================================
 
-(define filename "Input4.txt")
+(define filename "Input04.txt")
 (define number-of-cards 100)
 (define list5 '(0 1 2 3 4))
 (define input-file (open-input-file filename))

@@ -41,7 +41,7 @@
                (+ (car depths) (cadr depths) (caddr depths))
                (window (cdr depths))))))
 
-(define input (read-list "Input1.txt"))
+(define input (read-list "Input01.txt"))
 
 (display "Part 1: ")
 (count-increases 9999 input)

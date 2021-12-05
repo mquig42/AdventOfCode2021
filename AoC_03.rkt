@@ -90,7 +90,7 @@
 
 ;;Entry Point ==================================================================
         
-(define filename "Input3.txt")
+(define filename "Input03.txt")
 (define bit-width 11)
 
 (define input-file (open-input-file filename))

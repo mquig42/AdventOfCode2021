@@ -54,7 +54,7 @@
                      (cadr directions)))
           (cddr directions)))))
 
-(define input-file (open-input-file "Input2.txt"))
+(define input-file (open-input-file "Input02.txt"))
 (define input (read-list input-file))
 (close-input-port input-file)
 

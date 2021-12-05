@@ -134,7 +134,7 @@
   (count-duplicates-fast (flatten-one (map enumerate-points input))))
 
 ;;Entry Point ==================================================================
-(define filename "Input5.txt")
+(define filename "Input05.txt")
 (define input-file (open-input-file filename))
 (define input (read-all-segments input-file))
 (close-input-port input-file)

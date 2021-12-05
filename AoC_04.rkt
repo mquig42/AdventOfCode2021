@@ -39,11 +39,6 @@
   (if (= 0 n) null
       (cons (read-card file) (read-n-cards (- n 1) file))))
 
-;Generate a sequence of integers from start to end
-(define (make-seq start end)
-  (if (> start end) null
-      (cons start (make-seq (+ start 1) end))))
-
 ;Simple linear search. Returns position of n
 (define (position-of n lis)
   (define (iter acc n lis)
@@ -51,18 +46,13 @@
         (iter (+ acc 1) n (cdr lis))))
   (iter 0 n lis))
 
-;Returns nth item of a list
-(define (item-at n lis)
-  (if (= n 0) (car lis)
-      (item-at (- n 1) (cdr lis))))
-
 ;Might change draw-sequence from a list to a dictionary later.
 ;Making wrappers now to make that easier
 (define (draw-pos n)
   (position-of n draw-sequence))
 
 (define (nth-draw n)
-  (item-at n draw-sequence))
+  (list-ref draw-sequence n))
 
 ;Flexible function that can find the maximum or minimum value of a list
 (define (list-val-helper initial comparison lis)
@@ -96,11 +86,11 @@
 
 ;Returns nth row of card
 (define (row n card)
-  (item-at n card))
+  (list-ref card n))
 
 ;Returns nth column of card
 (define (col n card)
-  (map (λ (x) (item-at n (row x card))) list5))
+  (map (λ (x) (list-ref (row x card) n)) list5))
 
 ;Returns the draw-position of the last number to be drawn in this card
 (define (time-to-win card)
@@ -155,9 +145,9 @@
 (display "Winning Card: ")
 (pos-winning-card)
 (display "       Draws: ")
-(time-to-win (item-at (pos-winning-card) cards))
+(time-to-win (list-ref cards (pos-winning-card)))
 (display "       Score: ")
-(score (item-at (pos-winning-card) cards))
+(score (list-ref cards (pos-winning-card)))
 
 (newline)
 (display "Part 2:")
@@ -165,6 +155,6 @@
 (display " Losing Card: ")
 (pos-losing-card)
 (display "       Draws: ")
-(time-to-win (item-at (pos-losing-card) cards))
+(time-to-win (list-ref cards (pos-losing-card)))
 (display "       Score: ")
-(score (item-at (pos-losing-card) cards))
+(score (list-ref cards (pos-losing-card)))

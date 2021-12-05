@@ -81,7 +81,7 @@
     (if (> (get-coord point) (max segment)) null
         (cons point
               (iter (mk-point (+ (x-coord point) x-add)
-                                (+ (y-coord point) y-add))
+                              (+ (y-coord point) y-add))
                     get-coord x-add y-add max))))
   (cond ((horizontal? segment)
          (iter (mk-point (x-min segment) (y1 segment)) x-coord 1 0 x-max))

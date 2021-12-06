@@ -37,9 +37,10 @@
   (let ((decremented (map (λ (x) (- x 1)) fishes)))
     (append (map replace-1 decremented) (seq-8 (count-n decremented -1)))))
 
-(define (inc-n-days fishes n)
+;Repeat function n times
+(define (inc-n-days function fishes n)
   (if (= n 0) fishes
-      (inc-n-days (inc-day fishes) (- n 1))))
+      (inc-n-days function (function fishes) (- n 1))))
 
 ;More efficient method. Instead of a list of each fish, use a summary
 ;The position in the list represents the timer, and the number represents
@@ -56,10 +57,6 @@
           (+ (eighth fishes) eights)
           (ninth fishes)
           eights)))
-
-(define (inc-n-days-two fishes n)
-  (if (= n 0) fishes
-      (inc-n-days-two (inc-day-two fishes) (- n 1))))
 
 ;Converts input list into format for part 2 algorithms
 (define (convert-input input)
@@ -79,6 +76,6 @@
 (close-input-port input-file)
 
 (display "Part 1: ")
-(length (inc-n-days input 80))
+(length (inc-n-days inc-day input 80))
 (display "Part 2: ")
-(sum (inc-n-days-two (convert-input input) 256))
+(sum (inc-n-days inc-day-two (convert-input input) 256))

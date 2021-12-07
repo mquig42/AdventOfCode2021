@@ -20,9 +20,9 @@
 
 ;Calculates total movement cost for every possible destination, returns minimum
 (define (solve lst cost)
-  (argmin identity (map (λ (x) (total-movement-cost lst x cost))
-                        (range (argmin identity lst)
-                               (+ 1 (argmax identity lst))))))
+  (foldl (λ (x acc) (min (total-movement-cost lst x cost) acc))
+         99999999
+         (range (argmin identity lst) (+ 1 (argmax identity lst)))))
 
 ;Movement cost calculation for part 1
 (define (movement-cost-1 from to)

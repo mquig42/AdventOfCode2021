@@ -26,7 +26,7 @@
 ;;;0: the 6-char string that contains 1-segs but not 4-uniques
 ;;;3: the 5-char string that contains both of 1-segs
 ;;;5: the 5-char string that contains both of 4-uniques
-;;;2: the 5-char string that contains 4-uniques but not 1-segs
+;;;2: the 5-char string that does not contain 4-uniques or 1-segs
 
 #lang racket
 ;Read input file into a list

@@ -23,7 +23,7 @@
 ;;;gridC is the input to the next round of tail-recursion.
 ;;;If you get a gridA that doesn't have any cells >9, return it
 
-;;;For part 2, simply run the simulation until all octopuses are at 0
+;;;For part 2, simply run the simulation until all octopodes are at 0
 ;;;This is one of those days where part 2 is much easier than part 1
 
 #lang racket

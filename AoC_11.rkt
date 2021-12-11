@@ -98,27 +98,32 @@
     (map (λ (x) (+ x 1)) line))
   (map (λ (x) (inc-line x)) grid))
 
+;Runs simulation for n steps and returns resulting grid
 (define (run-n-steps grid n)
   (if (= 0 n) grid
       (run-n-steps (flash (increment grid)) (- n 1))))
 
+;Runs simulation for n steps and returns total number of flashes (solves part 1)
 (define (count-all-flashes grid acc n)
   (if (= 0 n) acc
       (let ((new-grid (flash (increment grid))))
         (count-all-flashes
          new-grid (+ acc (count-grid zero? new-grid)) (- n 1)))))
 
+;Runs simulation until all octopodes flash at the same time.
+;Returns number of time steps it took for that to happen (solves part 2)
 (define (time-to-sync grid t)
   (if (= (count-grid zero? grid) (* max-row max-col)) t
       (time-to-sync (flash (increment grid)) (+ t 1))))
 
-;;Entry Point ==================================================================
+;;Read input
 (define input-file (open-input-file "Input11.txt"))
 (define input (read-lines input-file))
 (close-input-port input-file)
 (define max-row (length input))
 (define max-col (length (car input)))
 
+;;Run simulations and display results
 (display "Part 1: ")
 (count-all-flashes input 0 100)
 (display "Part 2: ")

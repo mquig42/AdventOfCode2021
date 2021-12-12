@@ -37,14 +37,20 @@
 (define (get-connections cave)
   (filter (λ (x) (connection-exists? cave x)) caves))
 
-;This does enumerate all paths, but the formatting is messed up.
-;Fix that before doing part 2
-(define (enumerate-all-paths start acc)
-  (define (valid-dest? dest)
-    (not (and (string=? (string-downcase dest) dest) (member dest acc))))
-  (if (string=? start "end") (cons start acc)
-      (map (λ (x) (enumerate-all-paths x (cons start acc)))
-           (filter valid-dest? (hash-ref connections start)))))
+;Checks if str is lowercase
+(define (lower? str)
+  (string=? (string-downcase str) str))
+
+;Enumerate all paths to end from given starting point
+(define (enumerate-all-paths start path valid?)
+  (if (string=? start "end") (list (cons start path))
+      (foldl (λ (x acc)
+               (append acc (enumerate-all-paths x (cons start path) valid?)))
+             null
+             (filter (λ (x) (valid? x path)) (hash-ref connections start)))))
+
+(define (valid-dest-1? dest path)
+  (not (and (lower? dest) (member dest path))))
 
 ;;Open file and read input
 (define input-file (open-input-file "Input12.txt"))
@@ -59,5 +65,4 @@
 
 ;;Print output
 (display "Part 1: ")
-;This is awful, but it works for now
-(count (λ (x) (string=? x "end")) (flatten (enumerate-all-paths "start" null)))
+(length (enumerate-all-paths "start" null valid-dest-1?))

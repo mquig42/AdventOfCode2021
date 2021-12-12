@@ -3,14 +3,15 @@
 ;;;Mike Quigley
 
 ;;;Today we're pathfinding through a graph. First step is to build some
-;;;representation of that graph. Maybe a hash table where the key is a cave
+;;;representation of that graph. Decided on a hash table where the key is a cave
 ;;;and the value is a list of connected locations.
 
-;;;Paths can't pas through a lowercase-named cave more than once, and
-;;;I will assume that rule is there to prevent cycles
-
-;;;There's probably a way to use recursive mapping and filtering to
-;;;enumerate all paths. Would require some thought.
+;;;To enumerate all potential paths, I have a function that takes a
+;;;starting point (or current location) and the path taken to reach that point
+;;;It recursively calls itself for each potential next cave to visit
+;;;and appends the resulting lists together.
+;;;There are two different filter functions for determing the next
+;;;caves to visit, so the same enumeration function can work for both parts
 
 #lang racket
 ;Reads each line of the input file
@@ -59,10 +60,14 @@
                  (count (λ (x) (string=? cave x)) path))
                (filter lower? path))))
   
-
+;Is dest a valid cave to visit? By part 1 rules, this is only false for
+;small caves that have been visited already
 (define (valid-dest-1? dest path)
   (not (and (lower? dest) (member dest path))))
 
+;Is dest a valid cave to visit according to part 2 rules?
+;This allows visiting a small cave twice, as long as no small caves
+;have already been visited twice
 (define (valid-dest-2? dest path)
   (cond ((string=? dest "start") false)
         ((upper? dest) true)
@@ -70,6 +75,8 @@
         ((< (small-duplicates path) 2) true)
         (else false)))
 
+;Display more detailed output. Instead of just printing the
+;number of paths considered, also show the shortest path and its length
 (define (display-output paths)
   (let ((shortest (argmin length paths)))
     (display "Number of paths: ")

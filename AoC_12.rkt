@@ -46,7 +46,7 @@
 ;Enumerate all paths to end from given starting point
 (define (enumerate-all-paths start path valid?)
   (let ((path (cons start path)))
-    (if (string=? start "end") (list (cons start path))
+    (if (string=? start "end") (list path)
         (foldl (λ (x acc)
                  (append acc (enumerate-all-paths x path valid?)))
                null
@@ -70,6 +70,18 @@
         ((< (small-duplicates path) 2) true)
         (else false)))
 
+(define (display-output paths)
+  (let ((shortest (argmin length paths)))
+    (display "Number of paths: ")
+    (display (length paths))
+    (newline)
+    (display "  Shortest path: ")
+    (display (reverse shortest))
+    (newline)
+    (display"         Length: ")
+    (display (length shortest))
+    (newline)))
+
 ;;Open file and read input
 (define input-file (open-input-file "Input12.txt"))
 (define lines (read-lines input-file))
@@ -82,7 +94,10 @@
                           caves)))
 
 ;;Print output
-(display "Part 1: ")
-(length (enumerate-all-paths "start" null valid-dest-1?))
-(display "Part 2: ")
-(length (enumerate-all-paths "start" null valid-dest-2?))
+(display "            -- Part 1 --")
+(newline)
+(display-output (enumerate-all-paths "start" null valid-dest-1?))
+(newline)
+(display "            -- Part 2 --")
+(newline)
+(display-output (enumerate-all-paths "start" null valid-dest-2?))

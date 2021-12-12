@@ -37,20 +37,38 @@
 (define (get-connections cave)
   (filter (λ (x) (connection-exists? cave x)) caves))
 
-;Checks if str is lowercase
+;2 functions to check string case
 (define (lower? str)
   (string=? (string-downcase str) str))
+(define (upper? str)
+  (string=? (string-upcase str) str))
 
 ;Enumerate all paths to end from given starting point
 (define (enumerate-all-paths start path valid?)
-  (if (string=? start "end") (list (cons start path))
-      (foldl (λ (x acc)
-               (append acc (enumerate-all-paths x (cons start path) valid?)))
-             null
-             (filter (λ (x) (valid? x path)) (hash-ref connections start)))))
+  (let ((path (cons start path)))
+    (if (string=? start "end") (list (cons start path))
+        (foldl (λ (x acc)
+                 (append acc (enumerate-all-paths x path valid?)))
+               null
+               (filter (λ (x) (valid? x path)) (hash-ref connections start))))))
+
+;Counts the maximum number of times a distinct lowercase string appears in path
+(define (small-duplicates path)
+  (argmax identity
+          (map (λ (cave)
+                 (count (λ (x) (string=? cave x)) path))
+               (filter lower? path))))
+  
 
 (define (valid-dest-1? dest path)
   (not (and (lower? dest) (member dest path))))
+
+(define (valid-dest-2? dest path)
+  (cond ((string=? dest "start") false)
+        ((upper? dest) true)
+        ((not (member dest path)) true)
+        ((< (small-duplicates path) 2) true)
+        (else false)))
 
 ;;Open file and read input
 (define input-file (open-input-file "Input12.txt"))
@@ -66,3 +84,5 @@
 ;;Print output
 (display "Part 1: ")
 (length (enumerate-all-paths "start" null valid-dest-1?))
+(display "Part 2: ")
+(length (enumerate-all-paths "start" null valid-dest-2?))

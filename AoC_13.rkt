@@ -81,9 +81,9 @@
 (define instructions (read-instructions input-file))
 (close-input-port input-file)
 
+;;Display output
 (display "Part 1: ")
 (length (fold-sheet coords (car instructions)))
-
 (newline)
 (display "Part 2: ")
 (newline)

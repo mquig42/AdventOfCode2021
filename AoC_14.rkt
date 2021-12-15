@@ -78,7 +78,8 @@
     (let ((elements (filter char? (hash-keys result))))
       (let ((common-element (argmax (λ (x) (hash-ref result x)) elements))
             (rare-element (argmin (λ (x) (hash-ref result x)) elements)))
-        (- (hash-ref result common-element) (hash-ref result rare-element))))))
+        (- (hash-ref result common-element)
+           (hash-ref result rare-element))))))
 
 ;;Read input
 (define input-file (open-input-file "Input14.txt"))

@@ -81,6 +81,12 @@
         (- (hash-ref result common-element)
            (hash-ref result rare-element))))))
 
+;Just for fun, finds the length of the polymer after n rounds
+(define (count-n n)
+  (let ((result (insert-n n)))
+    (foldl (λ (x acc) (+ acc (hash-ref result x))) 0
+           (filter char? (hash-keys result)))))
+
 ;;Read input
 (define input-file (open-input-file "Input14.txt"))
 (define template (string-trim (read-line input-file)))

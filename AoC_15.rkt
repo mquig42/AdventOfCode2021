@@ -76,12 +76,11 @@
 ;;Finds the total risk of the best path from top left to bottom right of grid
 ;;Includes Dijkstra's algorithm and some helper functions for getting data
 (define (solve input)
-  (let ((max-row (length input))
-        (max-col (length (car input)))
-        (max-n (* (length input) (length (car input))))
-        (distances (make-vector
-                    (* (length input) (length (car input))) +inf.0))
-        (unvisited (make-q (* (length input) (length (car input))))))
+  (let* ((max-row (length input))
+         (max-col (length (car input)))
+         (max-n (* max-row max-col))
+         (distances (make-vector max-n +inf.0))
+         (unvisited (make-q max-n)))
     
     ;;Getters
     ;It may be helpful to have a unique ID for each point in the grid

@@ -12,6 +12,12 @@
 ;;;Needs some optimization, and possibly mutable state (vectors are so much
 ;;;faster than lists)
 
+;;;Second implementation, using a vector to store distances, takes 5361ms
+;;;to solve part 1. That's a significant improvement, but it could be better.
+;;;Still not confident about part 2.
+;;;Let's see if I can use a priority queue to speed up finding the next node
+;;;to visit.
+
 #lang racket
 ;Read input file into a list
 (define (read-lines file)
@@ -59,20 +65,18 @@
                        (cons row (+ col 1)))))))
 
 ;Dijkstra's Algorithm for shortest path
-(define (dijkstra current dest distances unvisited)
-  (display (set-count unvisited))
-  (newline)
-  (define (update-distances)
-    (let ((neighbours (get-neighbours current)))
-      (map (λ (dist id) (if (not (member id neighbours)) dist
-                            (min dist (+ (list-ref distances current)
-                                         (get-value-n id)))))
-           distances (range (length distances)))))
-  (if (= current dest) (list-ref distances current)
-      (dijkstra (argmin (λ (x) (list-ref distances x)) (set->list unvisited))
+(define (dijkstra current dest unvisited)
+  (for-each (λ (x) (vector-set! distances x
+                                (min (vector-ref distances x)
+                                     (+ (vector-ref distances current)
+                                        (get-value-n x)))))
+            (get-neighbours current))
+  (if (= current dest) (vector-ref distances current)
+      (let ((unvisited-c (set-remove unvisited current)))
+      (dijkstra (argmin (λ (x) (vector-ref distances x))
+                        (set->list unvisited-c))
                 dest
-                (update-distances)
-                (set-remove unvisited current))))
+                unvisited-c))))
        
 
 ;;Read input
@@ -83,6 +87,7 @@
 (define max-col (length (car input)))
 (define max-n (* max-row max-col))
 
-(define distances (map (λ (x) (if (= x 0) 0 +inf.0)) (range max-n)))
+(define distances (make-vector max-n +inf.0))
+(vector-set! distances 0 0)
 
-(dijkstra 0 (- max-n 1) distances (list->set (range max-n)))
+(time (dijkstra 0 (- max-n 1) (list->set (range max-n))))

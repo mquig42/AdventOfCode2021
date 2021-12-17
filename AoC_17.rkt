@@ -10,7 +10,7 @@
 
 ;;;Functional programming! Enumerate, map, and filter made part 2 easy.
 
-;;;Need to rewrite part 1, it doesn't work if there's a discontinuity.
+;;;Rewrote part 1 so it just uses the highest y-vel from part 2
 
 #lang racket
 ;Converts an input string into a list of 4 values, representing the minimum
@@ -77,29 +77,11 @@
         ((miss? probe target) false)
         (else (will-hit? (step probe) target))))
 
-;Runs simulation with given y-vel and a range of x-vels
-;Returns true if it is possible for a probe with given y-vel to hit target
-(define (will-hit-y? y-vel target)
-  (< 0 (length
-        (filter identity
-                (map (λ (x) (will-hit? (launch x y-vel) target))
-                     (range (x-max target)))))))
-
-;Attempts to find highest y-vel that can hit target
-;Doesn't work. For distant targets, there will be a gap between
-;direct-fire (high x-vel, low y-vel) and indirect-fire (high y, low x)
-(define (fastest-y target)
-  (define (iter y-vel)
-    (if (will-hit-y? y-vel target) (iter (+ y-vel 1)) (- y-vel 1)))
-  (iter 0))
-
 ;Finds the maximum height of any trajectory with the given starting y-vel
 (define (max-height y-vel)
   (/ (* y-vel (+ y-vel 1)) 2))
 
 ;Need to enumerate a bunch of starting (x-vel . y-vel) pairs
-;The actual highest y-vel for my input is 89
-;(found by mapping will-hit-y? over a range)
 (define (enumerate-velocities x-vel-min x-vel-max y-vel-min y-vel-max)
   (define (iter x-vel y-vel)
     (cond ((> x-vel x-vel-max) null)
@@ -109,9 +91,7 @@
   (iter x-vel-min y-vel-min))
 
 (define (filter-velocities lst target)
-  (filter identity
-          (map (λ (vels) (will-hit? (launch (car vels) (cdr vels)) target))
-               lst)))
+  (filter (λ (vels) (will-hit? (launch (car vels) (cdr vels)) target)) lst))
 
 (define input-file (open-input-file "Input17.txt"))
 (define input (string-trim (read-line input-file)))
@@ -119,11 +99,11 @@
 
 ;(define target (list 20 30 -10 -5))
 (define target (decode-input input))
+(define trajectories (filter-velocities
+                      (enumerate-velocities 1 (x-max target) (y-min target) 100)
+                      target))
 
 (display "Part 1: ")
-(max-height (fastest-y target))
+(max-height (cdr (argmax cdr trajectories)))
 (display "Part 2: ")
-(length
- (filter-velocities
-  (enumerate-velocities 1 (x-max target) (y-min target) 100)
-  target))
+(length trajectories)

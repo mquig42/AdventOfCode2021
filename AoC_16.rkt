@@ -76,15 +76,15 @@
   (define (sum-packet-lengths packets)
     (foldl (λ (x acc) (+ acc (pkt-length x))) 0 packets))
   (let* ((length-type (list-ref pkt 6))
-         (length-value (bin->dec (take (drop pkt 7)
-                                       (if (= 0 length-type) 15 11))))
+         (length-length (if (= 0 length-type) 15 11))
+         (length-value (bin->dec (take (drop pkt 7) length-length)))
          (decoded (if (= length-type 0)
                       (decode-packets (take (drop pkt 22) length-value))
                       (decode-n-packets (drop pkt 18) length-value))))
     (list (bin->dec (take pkt 3))
           (bin->dec (take (drop pkt 3) 3))
           decoded
-          (+ 7 (if (= 0 length-type) 15 11) (sum-packet-lengths decoded)))))
+          (+ 7 length-length (sum-packet-lengths decoded)))))
 
 ;Wrapper function that determines packet type and calls specific decoder
 (define (decode-packet pkt)

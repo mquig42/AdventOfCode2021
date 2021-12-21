@@ -21,6 +21,8 @@
 ;;;20 seconds to run.
 
 #lang racket
+(require graphics/graphics)
+
 ;Reads the input file and generates a set of lit coordinates
 (define (read-input-grid file)
   (define (read-points lst coord-set row column)
@@ -112,6 +114,20 @@
                    extents-nxt
                    (if (= background 1) 0 odd-background)))))
 
+;Draws the image
+(define (draw coord-set)
+  (let ((extents (get-extents coord-set)))
+    (define window
+      (open-viewport "Image"
+                     (+ (- (max-row extents) (min-row extents)) 1)
+                     (+ (- (max-col extents) (min-col extents)) 1)))
+    ((draw-viewport window) "black")
+    (for-each (λ (x) ((draw-pixel window)
+                      (make-posn (- (car x) (min-row extents))
+                                 (- (cdr x) (min-col extents)))
+                      "green"))
+              (set->list coord-set))))
+
 ;;Read input
 (define input-file (open-input-file "Input20.txt"))
 ;We'll be making a lot of lookups into this, so make it an immutable vector
@@ -134,3 +150,5 @@
 (display "Part 2: ")
 (define full-image (enhance-n 50 input-grid input-extents 0))
 (set-count full-image)
+(open-graphics)
+(draw full-image)

@@ -5,26 +5,23 @@
 ;;;Based on reading the description, all I have to do here is set a bunch of
 ;;;voxels on or off based on instructions in the input.
 
-;;;Once I create a function that enumerates all the voxels in a 3D range,
-;;;making sure to do bounds checking, the rest should take care of itself.
-;;;Just add or remove them from a set and do a set-count at the end.
-;;;I notice, however, that the first 20 lines of input have small numbers,
-;;;and the remaining 400 are much larger but out of bounds for part 1
-
 ;;;It's likely that a strategy of tracking individual voxels would work for
 ;;;part 1 but be too slow or memory-intensive for part 2
 ;;;A single randomly-chosen line of my input turns on 13,111,026,714,912 voxels
 ;;;That's too many to track individually.
 
-;;;This sort of adding and subtracting cubes is something CAD programs do.
-;;;How do they work?
-;;;https://en.wikipedia.org/wiki/Constructive_solid_geometry
-
-;;;As I suspected, part 2 is just part 1 without boundaries
-;;;The volume of the entire area is 6829 times bigger than the part 1 area
-;;;Since my voxel-counting algorithm takes 13 seconds to solve part 1, I can
-;;;just subdivide the volume into 100x100x100 regions and take the sum of
-;;;each one. This should take approximately 24 hours to run. Make that plan B.
+;;;The right answer is probably this:
+;;;Keep a list of all "on" cuboids. For each new cuboid from input, take
+;;;any existing ones that intersect and replace them with several smaller ones
+;;;that don't. If the new cuboid is "on", add it to the list.
+;;;Figuring out the splitting could be tricky.
+;;;How about this: Keep a list of cuboids that are either "on" or "off"
+;;;Same format as the parsed instructions.
+;;;When adding a new cuboid from instructions, find the volumes where it
+;;;overlaps existing cuboids and insert new "on" or "off" cuboids to represent
+;;;the overlapping volumes.
+;;;Find the total value of all "on" cuboids and subtract the total volume of
+;;;the "off" cuboids
 
 ;;;Terminology: I will be using "coords" to mean a single point in 3D space,
 ;;;and "box-coords" to represent a range of x, y and z values representing
@@ -73,16 +70,26 @@
 (define (z-max box-coords)
   (sixth box-coords))
 
-;range limiting function. Returns the section of box-coords that is within
-;the boundary. If it is completely outside, then at least one of the
-;minimum values in the returned list will be greater than the maximum
-(define (bounded-range box-coords boundary)
-  (list (max (x-min box-coords) (x-min boundary))
-        (min (x-max box-coords) (x-max boundary))
-        (max (y-min box-coords) (y-min boundary))
-        (min (y-max box-coords) (y-max boundary))
-        (max (z-min box-coords) (z-min boundary))
-        (min (z-max box-coords) (z-max boundary))))
+;Finds the intersection of two cuboids. If they do not overlap,
+;return '(0 -1 0 -1 0 -1)
+(define (intersect box-a box-b)
+  (let ((intersection (list (max (x-min box-a) (x-min box-b))
+                            (min (x-max box-a) (x-max box-b))
+                            (max (y-min box-a) (y-min box-b))
+                            (min (y-max box-a) (y-max box-b))
+                            (max (z-min box-a) (z-min box-b))
+                            (min (z-max box-a) (z-max box-b)))))
+    (if (and (> (x-max intersection) (x-min intersection))
+             (> (y-max intersection) (y-min intersection))
+             (> (z-max intersection) (z-min intersection)))
+        intersection
+        '(0 -1 0 -1 0 -1))))
+
+;Finds the volume of a cuboid
+(define (volume box-coords)
+  (* (- (x-max box-coords) (x-min box-coords) -1)
+     (- (y-max box-coords) (y-min box-coords) -1)
+     (- (z-max box-coords) (z-min box-coords) -1)))
 
 ;Returns a set of all voxels within given box-coords
 ;I know this won't work for part 2, but I'd like to find out what exactly
@@ -103,16 +110,44 @@
 
 ;Returns the set of all voxels that are turned on after following
 ;the instructions in input
-(define (make-all-boxes input boundary)
+(define (solve1 input boundary)
   (foldl (λ (x acc) (if (eq? 'on (car x))
                         (set-union
                          acc
-                         (enumerate-voxels (bounded-range (cdr x) boundary)))
+                         (enumerate-voxels (intersect (cdr x) boundary)))
                         (set-subtract
                          acc
-                         (enumerate-voxels (bounded-range (cdr x) boundary)))))
+                         (enumerate-voxels (intersect (cdr x) boundary)))))
          (set)
          input))
+
+;Based on overlapping positive and negative cuboids,
+(define (solve2 input)
+  (define (intersect-list box-coords lst acc)
+    (cond ((null? lst) acc)
+          ((equal? (intersect box-coords (car lst)) '(0 -1 0 -1 0 -1))
+           (intersect-list
+            box-coords (cdr lst) acc))
+          (else
+           (intersect-list
+            box-coords
+            (cdr lst)
+            (cons (intersect box-coords (car lst)) acc)))))
+  (define (iter input on off)
+    (let ((instruction (if (null? input) null (car input))))
+      (cond ((null? input)
+             (- (foldl + 0 (map volume on)) (foldl + 0 (map volume off))))
+            ((eq? 'on (car instruction))
+             (iter (cdr input)
+                   (cons (cdr instruction)
+                         (append (intersect-list (cdr instruction) off null)
+                                 on))
+                   (append (intersect-list (cdr instruction) on null) off)))
+            ((eq? 'off (car instruction))
+             (iter (cdr input)
+                   (append (intersect-list (cdr instruction) off null) on)
+                   (append (intersect-list (cdr instruction) on null) off))))))
+  (iter input null null))
 
 ;;Read input
 (define input-file (open-input-file "Input22.txt"))
@@ -123,4 +158,6 @@
 
 ;;Display output
 (display "Part 1: ")
-(set-count (make-all-boxes input boundary))
+(set-count (solve1 input boundary))
+(display "Part 2: ")
+(solve2 input)

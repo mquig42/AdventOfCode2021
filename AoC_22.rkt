@@ -79,9 +79,9 @@
                             (min (y-max box-a) (y-max box-b))
                             (max (z-min box-a) (z-min box-b))
                             (min (z-max box-a) (z-max box-b)))))
-    (if (and (> (x-max intersection) (x-min intersection))
-             (> (y-max intersection) (y-min intersection))
-             (> (z-max intersection) (z-min intersection)))
+    (if (and (>= (x-max intersection) (x-min intersection))
+             (>= (y-max intersection) (y-min intersection))
+             (>= (z-max intersection) (z-min intersection)))
         intersection
         '(0 -1 0 -1 0 -1))))
 

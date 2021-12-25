@@ -28,6 +28,10 @@
 ;;;Maybe Dijkstra's algorithm would be faster than memoized recursion,
 ;;;but this program is already too long.
 
+;;;Edit: Figured out a simple way to make it also solve part 1.
+;;;Just feed it a starting state with the bottom half of each room
+;;;already solved
+
 #lang racket
 (require memo)
 
@@ -255,7 +259,14 @@
                     (12 11 9 7 5 5 6 11 9 7 3 12 10 8 2 13 11 9 1 14 12 10 0)))
 
 ;;Start and end states. Not even trying to parse input from file today
-(define input
+(define input-p1
+  (list #\. #\. #\. #\. #\. #\. #\.
+        #\B #\C #\A #\B
+        #\C #\D #\D #\A
+        #\A #\B #\C #\D
+        #\A #\B #\C #\D))
+
+(define input-p2
   (list #\. #\. #\. #\. #\. #\. #\.
         #\B #\C #\A #\B
         #\D #\C #\B #\A
@@ -280,5 +291,7 @@
 (define movement-costs (hash #\A 1 #\B 10 #\C 100 #\D 1000))
 
 ;;Display solution
+(display "Part 1: ")
+(cost-to-solve input-p1 0)
 (display "Part 2: ")
-(cost-to-solve input 0)
+(cost-to-solve input-p2 0)
